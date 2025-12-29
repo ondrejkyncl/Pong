@@ -1,5 +1,10 @@
 var gameCanvas = document.getElementById('pongCanvas');
 var ctx = gameCanvas.getContext('2d');
+gameCanvas.width = 1530;
+gameCanvas.height = 1080;
+ctx.scale(1.8, 1.8);
+var gameWidth = 850;
+var gameHeight = 600;
 //ball settings
 var ballX = 425;
 var ballY = 300;
@@ -64,31 +69,68 @@ function UpdateAI() {
 }
 //restarts the ball (:O)
 function resetBall(direction) {
+    var randInt = Math.random();
+    if (randInt <= 0.2) {
+        randInt *= 10;
+    }
+    if (randInt <= 0.5) {
+        randInt *= 5;
+    }
+    else {
+        randInt *= 2.5;
+    }
     ballX = 850 / 2;
     ballY = 600 / 2;
     ballspeedX = 0;
     ballspeedY = 0;
     setTimeout(function () {
-        ballspeedY = Math.random() * 5;
+        ballspeedY = randInt;
         ballspeedX = direction;
     }, 1000);
 }
 //function that ensures the animation
 function gameLoop() {
-    ctx.fillStyle = '#ffffff';
-    ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+    if (Player1Score === 10) {
+        ctx.textAlign = 'center';
+        ctx.font = '30px "Jersey 10"';
+        ctx.fillText("GAME OVER", 425, 200);
+        ctx.font = '15px "Jersey 10"';
+        ctx.fillText("Player 1 wins!", 425, 225);
+        return;
+    }
+    if (Player2Score === 10) {
+        ctx.textAlign = 'center';
+        ctx.font = '30px "Jersey 10"';
+        ctx.fillText("GAME OVER", 425, 200);
+        ctx.font = '15px "Jersey 10"';
+        ctx.fillText("Player 2 wins!", 425, 225);
+        return;
+    }
+    //declaration of the ball physics
     ballX = ballX + ballspeedX;
     ballY = ballY + ballspeedY;
+    //set color to everything, then draw splitting line
+    ctx.fillStyle = '#ffffff';
+    ctx.clearRect(0, 0, gameWidth, gameHeight); //clear the screen
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.lineWidth = 4;
+    ctx.setLineDash([36.25, 15]);
+    ctx.beginPath();
+    ctx.moveTo(gameWidth / 2, 0);
+    ctx.lineTo(gameWidth / 2, gameHeight);
+    ctx.stroke();
+    ctx.setLineDash([]);
     //make the ball bounce around on impact
     if (ballY - radius < 0) {
         ballY = radius;
         ballspeedY = Math.abs(ballspeedY);
     }
-    if (ballY + radius > gameCanvas.height) {
-        ballY = gameCanvas.height - radius;
+    if (ballY + radius > gameHeight) {
+        ballY = gameHeight - radius;
         ballspeedY = -Math.abs(ballspeedY);
     }
-    if (ballX >= 850) {
+    //score system
+    if (ballX >= gameWidth) {
         Player1Score++;
         ballspeedX = 2;
         resetBall(2);
@@ -145,16 +187,17 @@ function gameLoop() {
         player1Y = 500;
         player1Velocity = 0;
     }
-    //run "UpdateAI" function
     UpdateAI();
     //the drawing logic (animation)
-    ctx.fillRect(ballX - 7.5, ballY - 7.5, 15, 15); //draw the ball center with "x" as its radius
+    ctx.beginPath();
+    ctx.arc(ballX, ballY, radius, 0, Math.PI * 2);
+    ctx.fill();
     ctx.fillRect(50, player1Y, 10, 100); //left paddle
     ctx.fillRect(790, player2Y, 10, 100); //right paddle
     requestAnimationFrame(gameLoop); //end of loop   
     //display the score
     ctx.fillStyle = '#ffffff';
-    ctx.font = '30px Arial';
+    ctx.font = '50px "Jersey 10"';
     ctx.fillText(Player1Score.toString(), 200, 100);
     ctx.fillText(Player2Score.toString(), 600, 100);
 }
@@ -187,10 +230,10 @@ document.addEventListener('keyup', function (event) {
     if (event.key === 'Shift') {
         P1slowDown = false;
     }
-    if (event.key === 'upArrow') {
+    if (event.key === 'ArrowUp') {
         upArrowIsPressed = false;
     }
-    if (event.key === 'downArrow') {
+    if (event.key === 'ArrowDown') {
         downArrowIsPressed = false;
     }
 });

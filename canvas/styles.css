@@ -12,4 +12,23 @@ body {
 #pongCanvas {
     background-color: black;
     border: 2px solid #ffffff; /* border for visibility */
+    canvas {
+        image-rendering: -moz-crisp-edges;
+    }
+}
+#restartbutton {
+    display: none;
+    position: absolute;
+    top: 60%;
+
+    padding: 15px 30px;
+    font-size: 20px;
+    font-family: 'Jersey 10';
+    background-color: #ffffff;
+    color: black;
+    cursor: pointer
+}
+
+#restartButton:hover{
+    background-color: #ffeeff;
 }
