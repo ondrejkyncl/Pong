@@ -11,6 +11,8 @@ let animationId: number
 let resetTimeout: number
 let hasGameStarted: boolean = false;
 let startScreenId: number
+let escKeyHoldStart: number = 0;
+const exitduration: number = 1500
 //ball settings
 let ballX: number = 425
 let ballY: number = 300
@@ -88,7 +90,7 @@ function resetBall (direction: number) {
     ballY = gameHeight/2
     ballspeedX = 0
     ballspeedY = 0
-    resetTimeout = setTimeout(() => {
+    resetTimeout = window.setTimeout(() => {
         ballspeedY = randInt
         ballspeedX = direction
     }, 1000);
@@ -276,6 +278,22 @@ let currentAccel = P1slowDown ? 0.2 : acceleration;
     ctx.fill ();
     ctx.fillRect(50, player1Y, 10, 100); //left paddle
     ctx.fillRect(790, player2Y, 10, 100); //right paddle
+
+//exit function
+if (escKeyHoldStart > 0) {
+    const currentHoldTime = Date.now() -escKeyHoldStart;
+    const opacity = Math.min(currentHoldTime / exitduration)
+    
+    ctx.font = '25px "Jersey 10"'
+    ctx.textAlign = 'left'
+
+    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`
+    ctx.fillText("Hold ESC to exit", 20, gameHeight - 20)
+
+    if (currentHoldTime >= exitduration) {
+        window.close();
+    }
+}
     animationId = requestAnimationFrame(gameLoop); //end of loop   
 //display the score
 ctx.fillStyle = '#ffffff'
@@ -302,6 +320,11 @@ document.addEventListener ('keydown', (event) => { //checks if the key is presse
         if (event.key === 'downArrow') {
         downArrowIsPressed = true;
     }
+        if (event.key === 'Escape') {
+            if (escKeyHoldStart === 0) {
+                escKeyHoldStart = Date.now();
+            }
+        }
 });
 
 document.addEventListener ('keyup', (event) => { //checks if the key is pressed, if no = false
@@ -319,6 +342,9 @@ document.addEventListener ('keyup', (event) => { //checks if the key is pressed,
     }
         if (event.key === 'ArrowDown') {
         downArrowIsPressed = false;
+    }
+            if (event.key === 'Escape') {
+            escKeyHoldStart = 0
     }
 });
 

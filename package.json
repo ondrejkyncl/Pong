@@ -1,0 +1,26 @@
+{
+  "name": "pong",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./logic/gamesettings.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-packager . PongGame --platform=win32 --arch=x64 --overwrite --icon=pongicon.ico"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ondrejkyncl/Pong.git"
+  },
+  "keywords": [],
+  "author": "Grujzis",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ondrejkyncl/Pong/issues"
+  },
+  "homepage": "https://github.com/ondrejkyncl/Pong#readme",
+  "devDependencies": {
+    "electron": "^39.2.7",
+    "electron-packager": "^17.1.2"
+  }
+}

@@ -1,17 +1,24 @@
 body {
-    background-color: #111111;
+    background-color: transparent;
     text-align: center;
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     margin: 0;
+    overflow: hidden;
 }
 
 
 #pongCanvas {
     background-color: black;
-    border: 2px solid #ffffff; /* border for visibility */
+    border: 3px solid #ffffff; /* border for visibility */
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    max-width: 95vw;
+    max-height: 95vh;
+    width: auto;
+    height: auto;
+    aspect-ratio: 850 / 600;
     image-rendering: pixelated; 
     image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
@@ -31,7 +38,7 @@ body {
     z-index: 100;
 /*sizing and font*/
     font-family: 'Jersey 10';
-    font-size: 50px;
+    font-size: 30px;
     padding: 20px 20px;
 /*colors*/
     background-color: black;

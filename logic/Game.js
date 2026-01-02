@@ -11,6 +11,8 @@ var animationId;
 var resetTimeout;
 var hasGameStarted = false;
 var startScreenId;
+var escKeyHoldStart = 0;
+var exitduration = 1500;
 //ball settings
 var ballX = 425;
 var ballY = 300;
@@ -89,7 +91,7 @@ function resetBall(direction) {
     ballY = gameHeight / 2;
     ballspeedX = 0;
     ballspeedY = 0;
-    resetTimeout = setTimeout(function () {
+    resetTimeout = window.setTimeout(function () {
         ballspeedY = randInt;
         ballspeedX = direction;
     }, 1000);
@@ -252,6 +254,18 @@ function gameLoop() {
     ctx.fill();
     ctx.fillRect(50, player1Y, 10, 100); //left paddle
     ctx.fillRect(790, player2Y, 10, 100); //right paddle
+    //exit function
+    if (escKeyHoldStart > 0) {
+        var currentHoldTime = Date.now() - escKeyHoldStart;
+        var opacity = Math.min(currentHoldTime / exitduration);
+        ctx.font = '25px "Jersey 10"';
+        ctx.textAlign = 'left';
+        ctx.fillStyle = "rgba(255, 255, 255, ".concat(opacity, ")");
+        ctx.fillText("Hold ESC to exit", 20, gameHeight - 20);
+        if (currentHoldTime >= exitduration) {
+            window.close();
+        }
+    }
     animationId = requestAnimationFrame(gameLoop); //end of loop   
     //display the score
     ctx.fillStyle = '#ffffff';
@@ -278,6 +292,11 @@ document.addEventListener('keydown', function (event) {
     if (event.key === 'downArrow') {
         downArrowIsPressed = true;
     }
+    if (event.key === 'Escape') {
+        if (escKeyHoldStart === 0) {
+            escKeyHoldStart = Date.now();
+        }
+    }
 });
 document.addEventListener('keyup', function (event) {
     if (event.key === 'w' || event.key === 'W') {
@@ -294,6 +313,9 @@ document.addEventListener('keyup', function (event) {
     }
     if (event.key === 'ArrowDown') {
         downArrowIsPressed = false;
+    }
+    if (event.key === 'Escape') {
+        escKeyHoldStart = 0;
     }
 });
 restartBtn.addEventListener('click', function () {
