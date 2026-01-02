@@ -12,23 +12,41 @@ body {
 #pongCanvas {
     background-color: black;
     border: 2px solid #ffffff; /* border for visibility */
-    canvas {
-        image-rendering: -moz-crisp-edges;
-    }
+    image-rendering: pixelated; 
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
 }
-#restartbutton {
+#gameContainer {
+    position: relative;
+    display: inline-block;
+}
+
+#restartButton {
     display: none;
+/*positioning*/
     position: absolute;
-    top: 60%;
-
-    padding: 15px 30px;
-    font-size: 20px;
+    top: 60.9%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    z-index: 100;
+/*sizing and font*/
     font-family: 'Jersey 10';
-    background-color: #ffffff;
-    color: black;
-    cursor: pointer
+    font-size: 50px;
+    padding: 20px 20px;
+/*colors*/
+    background-color: black;
+    color: white;
+    padding: 10px 20px;
+    border: 2px solid white;
+/*misc*/
+    cursor:pointer;
+        transition: all 0.2s ease-in-out;
 }
 
-#restartButton:hover{
-    background-color: #ffeeff;
+#restartButton:hover {
+    z-index: 101;
+    background-color: white;
+    color: black;
+    border: 2px solid white;
+    cursor:pointer
 }

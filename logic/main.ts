@@ -1,4 +1,4 @@
-
+//whatever you want to call these ig
 const gameCanvas = document.getElementById('pongCanvas') as HTMLCanvasElement;
 const ctx = gameCanvas.getContext('2d')!
 gameCanvas.width = 1530
@@ -6,6 +6,11 @@ gameCanvas.height = 1080
 ctx.scale(1.8, 1.8);
 const gameWidth = 850;
 const gameHeight = 600
+const restartBtn = document.getElementById('restartButton') as HTMLButtonElement;
+let animationId: number
+let resetTimeout: number
+let hasGameStarted: boolean = false;
+let startScreenId: number
 //ball settings
 let ballX: number = 425
 let ballY: number = 300
@@ -78,34 +83,76 @@ function resetBall (direction: number) {
         randInt *= 5
     } 
     else {
-        randInt *= 2.5} 
-    ballX = 850/2
-    ballY = 600/2
+        randInt *= 2} 
+    ballX = gameWidth/2
+    ballY = gameHeight/2
     ballspeedX = 0
     ballspeedY = 0
-    setTimeout(() => {
+    resetTimeout = setTimeout(() => {
         ballspeedY = randInt
         ballspeedX = direction
     }, 1000);
 }
-//function that ensures the animation
+
+function drawStartScreen () {
+    ctx.fillStyle = '#ffffff'
+    ctx.clearRect (0, 0, gameWidth, gameHeight)
+
+    ctx.fillRect(50, 300-50, 10, 100); //left paddle
+    ctx.fillRect(790, 300-50, 10, 100); //right paddle
+
+    ctx.beginPath()
+    ctx.arc(ballX, ballY, radius, 0, Math.PI * 2)
+    ctx.fill ();
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'
+    ctx.lineWidth = 4;
+    ctx.setLineDash ([36.25, 15])
+    ctx.beginPath();
+    ctx.moveTo (gameWidth / 2, 0)
+    ctx.lineTo(gameWidth / 2, gameHeight)
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.font = '50px "Jersey 10"'
+    ctx.textAlign = 'start'
+    ctx.fillText(Player1Score.toString(), 200, 100)
+    ctx.fillText(Player2Score.toString(), 600, 100)
+
+    if (Date.now () % 1500 < 1000) {
+    ctx.font = '25px "Jersey 10"';
+    ctx.fillStyle = 'rgba(255, 255, 255, .75)'
+    ctx.textAlign = 'left'
+
+    ctx.fillText("Click to start", 20, gameHeight - 20)
+    }
+    if (!hasGameStarted) {
+        startScreenId = requestAnimationFrame(drawStartScreen);
+    }
+}
+
 function gameLoop () {
-    if (Player1Score === 10) {
+//check for the score, if it matches "WinningScore", display the text
+    if (Player1Score === WinningScore) {
         ctx.textAlign = 'center'
         ctx.font = '30px "Jersey 10"';
         ctx.fillText ("GAME OVER", 425, 200);
 
         ctx.font = '15px "Jersey 10"';
         ctx.fillText ("Player 1 wins!", 425, 225);
+
+        restartBtn.style.display = 'block';
         return;
 }
-    if (Player2Score === 10) {
+    if (Player2Score === WinningScore) {
         ctx.textAlign = 'center'
         ctx.font = '30px "Jersey 10"';
         ctx.fillText ("GAME OVER", 425, 200);
 
         ctx.font = '15px "Jersey 10"';
         ctx.fillText ("Player 2 wins!", 425, 225);
+
+        restartBtn.style.display = 'block';
         return;
 }
 //declaration of the ball physics
@@ -146,24 +193,47 @@ function gameLoop () {
     }
 //collisions
 //1. Player 1
-    if (ballX - radius <= 60 && ballX - radius >= 50) {
-        if (ballY >= player1Y && ballY <= player1Y + 100) {
-            ballspeedX = Math.abs(ballspeedX); 
-            
+    if (ballX < 60 + radius && ballX > 50 - radius && ballY > player1Y - radius && ballY < player1Y + 100 + radius) {
+        if ( ballY >= player1Y && ballY <= player1Y + 100) {
+            ballspeedX = Math.abs(ballspeedX)
+
             let deltaY = ballY - (player1Y + 50);
             ballspeedY = deltaY * 0.1;
+
+            ballX = 60 + radius;
+        }
+        else {
+            ballspeedY = -ballspeedY;
+
+            if (ballY < player1Y + 50) {
+                ballY = player1Y - radius - 1;
+            }
+            else {
+                ballY = player1Y + 100 + radius + 1
+            }
         }
     }
-
 // 2. Player 2 / AI
-    if (ballX + radius >= 790 && ballX + radius <= 800) {
+    if (ballX > 790 - radius && ballX < 800 + radius && ballY > player2Y - radius && ballY < player2Y + 100 + radius) {
         if (ballY >= player2Y && ballY <= player2Y + 100) {
             ballspeedX = -Math.abs(ballspeedX);
-            
-            let deltaY = ballY - (player2Y + 50);
-            ballspeedY = deltaY * 0.1;
+        
+        let deltaY = ballY - (player2Y + 50);
+        ballspeedY = deltaY * 0.1;
+
+        ballX = 790 - radius;
+    } 
+    else {
+        ballspeedY = -ballspeedY;
+        
+        if (ballY < player2Y + 50) { 
+            ballY = player2Y - radius - 1;
+        }
+        else {
+            ballY = player2Y + 100 + radius + 1;
         }
     }
+}
 //Player 1 physics and limitations
 let currentMaxSpeed = P1slowDown ? 3 : maxSpeed;
 let currentAccel = P1slowDown ? 0.2 : acceleration;
@@ -206,16 +276,17 @@ let currentAccel = P1slowDown ? 0.2 : acceleration;
     ctx.fill ();
     ctx.fillRect(50, player1Y, 10, 100); //left paddle
     ctx.fillRect(790, player2Y, 10, 100); //right paddle
-    requestAnimationFrame(gameLoop); //end of loop   
+    animationId = requestAnimationFrame(gameLoop); //end of loop   
 //display the score
 ctx.fillStyle = '#ffffff'
 ctx.font = '50px "Jersey 10"'
+ctx.textAlign = 'start'
 ctx.fillText(Player1Score.toString(), 200, 100)
 ctx.fillText(Player2Score.toString(), 600, 100)
 }
-gameLoop() 
+drawStartScreen()
 //definition of the controls
-document.addEventListener ('keydown', (event) => { //checks if the key is "pressed", if yes = true
+document.addEventListener ('keydown', (event) => { //checks if the key is pressed, if yes = true
     if (event.key === 'w' || event.key === 'W') {
         wKeyIsPressed = true;
     }
@@ -233,7 +304,7 @@ document.addEventListener ('keydown', (event) => { //checks if the key is "press
     }
 });
 
-document.addEventListener ('keyup', (event) => { //checks if the key is "pressed", if no = false
+document.addEventListener ('keyup', (event) => { //checks if the key is pressed, if no = false
     if (event.key === 'w' || event.key === 'W') {
         wKeyIsPressed = false;
     }
@@ -248,5 +319,28 @@ document.addEventListener ('keyup', (event) => { //checks if the key is "pressed
     }
         if (event.key === 'ArrowDown') {
         downArrowIsPressed = false;
+    }
+});
+
+restartBtn.addEventListener ('click', () => {
+
+    clearTimeout(resetTimeout)
+    cancelAnimationFrame(animationId)
+
+    Player1Score = 0
+    Player2Score = 0
+
+    restartBtn.style.display = 'none'
+
+    resetBall(2)
+    gameLoop();
+});
+
+gameCanvas.addEventListener ('click', () => {
+    if (!hasGameStarted) {
+        cancelAnimationFrame(startScreenId)
+        hasGameStarted = true;
+        gameLoop()
+        resetBall(2)
     }
 });
